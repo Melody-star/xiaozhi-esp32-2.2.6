@@ -7,6 +7,24 @@ config OTA_URL
         The application will access this URL to check for new firmwares and server address.
 
 choice
+    prompt "OTA Method"
+    default OTA_METHOD_HTTP_REMOTE
+    help
+        Select the OTA method for firmware updates.
+
+    config OTA_METHOD_HTTP_REMOTE
+        bool "HTTP Remote Server"
+        help
+            Check for firmware updates from the remote server and apply automatically.
+
+    config OTA_METHOD_WEB_UPLOAD
+        bool "Web Upload"
+        help
+            Upload firmware manually via the web interface (browser).
+            Automatic remote OTA check is skipped.
+endchoice
+
+choice
     prompt "Flash Assets"
     default FLASH_DEFAULT_ASSETS if !USE_EMOTE_MESSAGE_STYLE
     default FLASH_EXPRESSION_ASSETS if USE_EMOTE_MESSAGE_STYLE

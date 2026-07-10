@@ -263,6 +263,19 @@ void Application::HandleNetworkConnectedEvent() {
     auto state = GetDeviceState();
 
     if (state == kDeviceStateStarting || state == kDeviceStateWifiConfiguring) {
+#ifdef CONFIG_OTA_METHOD_WEB_UPLOAD
+        // Start web OTA server
+        if (!web_ota_server_) {
+            web_ota_server_ = std::make_unique<WebOtaServer>();
+            if (!web_ota_server_->Start(80)) {
+                ESP_LOGW(TAG, "Failed to start web OTA server");
+                web_ota_server_.reset();
+            } else {
+                ESP_LOGI(TAG, "Web OTA server started at http://xiaozhi-XXXX.local or device IP:80");
+            }
+        }
+#endif
+
         // Network is ready, start activation
         SetDeviceState(kDeviceStateActivating);
         if (activation_task_handle_ != nullptr) {
@@ -433,10 +446,12 @@ void Application::CheckNewVersion() {
         retry_delay = 10; // Reset retry delay
 
         if (ota_->HasNewVersion()) {
+#ifdef CONFIG_OTA_METHOD_HTTP_REMOTE
             if (UpgradeFirmware(ota_->GetFirmwareUrl(), ota_->GetFirmwareVersion())) {
                 return; // This line will never be reached after reboot
             }
             // If upgrade failed, continue to normal operation
+#endif
         }
 
         // No new version, mark the current version as valid

@@ -15,6 +15,7 @@
 #include "oled_display.h"
 #include "board.h"
 #include "settings.h"
+#include "wifi_manager.h"
 #include "lvgl_theme.h"
 #include "lvgl_display.h"
 
@@ -120,6 +121,19 @@ void McpServer::AddCommonTools() {
             });
     }
 #endif
+
+    AddTool("self.network.get_ip",
+        "Get the current IP address of the device.\n"
+        "Use this tool when the user asks about the device's IP address or network information.",
+        PropertyList(),
+        [](const PropertyList& properties) -> ReturnValue {
+            auto& wifi = WifiManager::GetInstance();
+            std::string ip = wifi.GetIpAddress();
+            if (ip.empty()) {
+                return "{\"ip\":\"\",\"connected\":false}";
+            }
+            return "{\"ip\":\"" + ip + "\",\"connected\":true}";
+        });
 
     // Restore the original tools list to the end of the tools list
     tools_.insert(tools_.end(), original_tools.begin(), original_tools.end());

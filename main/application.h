@@ -13,6 +13,7 @@
 
 #include "protocol.h"
 #include "ota.h"
+#include "web_ota_server.h"
 #include "audio_service.h"
 #include "device_state.h"
 #include "device_state_machine.h"
@@ -135,6 +136,7 @@ private:
     std::string last_error_message_;
     AudioService audio_service_;
     std::unique_ptr<Ota> ota_;
+    std::unique_ptr<WebOtaServer> web_ota_server_;
 
     bool has_server_time_ = false;
     bool aborted_ = false;
