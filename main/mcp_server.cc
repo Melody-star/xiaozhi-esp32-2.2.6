@@ -14,6 +14,7 @@
 #include "display.h"
 #include "oled_display.h"
 #include "board.h"
+#include "wifi_board.h"
 #include "settings.h"
 #include "wifi_manager.h"
 #include "lvgl_theme.h"
@@ -133,6 +134,19 @@ void McpServer::AddCommonTools() {
                 return "{\"ip\":\"\",\"connected\":false}";
             }
             return "{\"ip\":\"" + ip + "\",\"connected\":true}";
+        });
+
+    AddTool("self.system.reconfigure_wifi",
+        "End this conversation and enter WiFi configuration mode.\n"
+        "**CAUTION** You must ask the user to confirm this action.",
+        PropertyList(),
+        [&board](const PropertyList& properties) -> ReturnValue {
+            auto wifi_board = dynamic_cast<WifiBoard*>(&board);
+            if (wifi_board) {
+                wifi_board->EnterWifiConfigMode();
+                return true;
+            }
+            return false;
         });
 
     // Restore the original tools list to the end of the tools list

@@ -566,6 +566,9 @@ choice BOARD_TYPE
     config BOARD_TYPE_AI_VOX3
         bool "NULLLAB-AI-VOX3"
         depends on IDF_TARGET_ESP32S3
+    config BOARD_TYPE_PIXEL_CLOCK_S3
+        bool "Pixel Clock S3 (像素时钟)"
+        depends on IDF_TARGET_ESP32S3
 endchoice
 
 choice
