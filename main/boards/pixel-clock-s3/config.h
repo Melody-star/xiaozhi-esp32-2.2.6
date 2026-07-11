@@ -34,4 +34,9 @@
 
 #define LIGHT_SENSOR_ADC_GPIO   GPIO_NUM_2
 
+#define BUILTIN_LED_GPIO        GPIO_NUM_45
+
+#define LED_MATRIX_WIDTH        32
+#define LED_MATRIX_HEIGHT       8
+
 #endif // _BOARD_CONFIG_H_

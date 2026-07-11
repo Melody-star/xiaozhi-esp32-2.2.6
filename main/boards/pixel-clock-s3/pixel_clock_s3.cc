@@ -4,12 +4,15 @@
 #include "button.h"
 #include "config.h"
 #include "mcp_server.h"
+#include "led/led_matrix.h"
 
 #include <esp_log.h>
+#include <esp_timer.h>
 #include <driver/i2c_master.h>
 #include <esp_adc/adc_oneshot.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <time.h>
 
 #define TAG "PixelClockS3"
 
@@ -59,6 +62,7 @@ private:
     Aht20* aht20_;
     adc_oneshot_unit_handle_t adc_handle_;
     Button boot_button_;
+    LedMatrix* led_matrix_;
 
     void InitializeI2c() {
         i2c_master_bus_config_t bus_cfg = {
@@ -87,6 +91,10 @@ private:
             .bitwidth = ADC_BITWIDTH_12,
         };
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_handle_, ADC_CHANNEL_1, &chan_cfg));
+    }
+
+    void InitializeMatrix() {
+        led_matrix_ = new LedMatrix(BUILTIN_LED_GPIO, LED_MATRIX_WIDTH, LED_MATRIX_HEIGHT);
     }
 
     void InitializeButtons() {
@@ -132,8 +140,12 @@ public:
     PixelClockS3Board() : boot_button_(BOOT_BUTTON_GPIO) {
         InitializeI2c();
         InitializeAdc();
+        InitializeMatrix();
         InitializeButtons();
         InitializeTools();
+
+        // LED以此亮
+        led_matrix_->Marquee();
     }
 
     virtual AudioCodec* GetAudioCodec() override {
@@ -146,6 +158,10 @@ public:
             AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN);
 #endif
         return &audio_codec;
+    }
+
+    virtual Led* GetLed() override {
+        return led_matrix_;
     }
 };
 
