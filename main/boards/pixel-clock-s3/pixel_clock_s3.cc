@@ -5,6 +5,7 @@
 #include "config.h"
 #include "mcp_server.h"
 #include "led/led_matrix.h"
+#include "led/display_manager.h"
 
 #include <esp_log.h>
 #include <esp_timer.h>
@@ -63,6 +64,7 @@ private:
     adc_oneshot_unit_handle_t adc_handle_;
     Button boot_button_;
     LedMatrix* led_matrix_;
+    DisplayManager* display_manager_;
 
     void InitializeI2c() {
         i2c_master_bus_config_t bus_cfg = {
@@ -95,6 +97,7 @@ private:
 
     void InitializeMatrix() {
         led_matrix_ = new LedMatrix(BUILTIN_LED_GPIO, LED_MATRIX_WIDTH, LED_MATRIX_HEIGHT);
+        display_manager_ = new DisplayManager(led_matrix_->GetGraphics(), led_matrix_->GetFont());
     }
 
     void InitializeButtons() {
@@ -104,7 +107,13 @@ private:
                 EnterWifiConfigMode();
                 return;
             }
-            app.ToggleChatState();
+
+            float temp, hum;
+            if (aht20_->Read(temp, hum)) {
+                display_manager_->SetTemperature(temp);
+                display_manager_->SetHumidity(hum);
+            }
+            display_manager_->NextMode();
         });
     }
 
@@ -144,8 +153,13 @@ public:
         InitializeButtons();
         InitializeTools();
 
-        // LED以此亮
-        led_matrix_->Marquee();
+        led_matrix_->ShowText("START...");
+
+        float temp, hum;
+        if (aht20_->Read(temp, hum)) {
+            display_manager_->SetTemperature(temp);
+            display_manager_->SetHumidity(hum);
+        }
     }
 
     virtual AudioCodec* GetAudioCodec() override {

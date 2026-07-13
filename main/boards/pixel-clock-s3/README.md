@@ -18,3 +18,17 @@ idf.py set-target esp32s3
 idf.py menuconfig  # 选择 Board Type -> Pixel Clock S3
 idf.py build flash monitor
 ```
+
+## 屏幕
+
+屏幕由 4 个 8×8 模块水平拼接组成（总尺寸 32×8）。
+
+每个模块内部均采用按行连续编号（Row-major）：
+
+1  2  3  4  5  6  7  8
+9 10 11 12 13 14 15 16
+17 ...
+...
+57 58 59 60 61 62 63 64
+
+模块之间按从左到右依次拼接，组成一个逻辑上的 32×8 点阵。
